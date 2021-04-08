@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "package": "yal.testmod.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "minVersion": "0.8",
+  "mixins": [
+    "TestMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

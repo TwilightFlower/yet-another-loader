@@ -1,0 +1,6 @@
+dependencies {
+    implementation project(":core")
+    api "org.spongepowered:mixin:0.8.3-SNAPSHOT"
+    runtime "com.google.guava:guava:21.0" // mixin doesn't have these in its pom for some reason
+    runtime "com.google.code.gson:gson:2.2.4"
+}

@@ -1,0 +1,6 @@
+include 'core'
+include 'plugin-mixin'
+include 'generic-program-provider'
+include 'test-target'
+include 'test-mod'
+include 'dev-mod-provider'

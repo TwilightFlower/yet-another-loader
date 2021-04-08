@@ -1,0 +1,66 @@
+plugins {
+	id 'java'
+	id 'application'
+	id 'eclipse'
+	id 'maven-publish'
+}
+
+configurations {
+	target {transitive = false}
+}
+
+dependencies {
+	implementation project(":core")
+	implementation project(":plugin-mixin")
+    implementation project(":generic-program-provider")
+    implementation project(":dev-mod-provider")
+    implementation project(":test-mod")
+    target project(":test-target")
+}
+
+allprojects {
+	apply plugin: 'java-library'
+	apply plugin: 'eclipse'
+	apply plugin: 'maven-publish'
+
+	repositories {
+		mavenLocal()
+		mavenCentral()
+		maven {url = "https://repo.spongepowered.org/repository/maven-public/"}
+	}
+
+	task sourceJar(type: Jar) {
+		classifier 'sources'
+		from sourceSets.main.allJava
+	}
+}
+
+application {
+	mainClass = "io.github.nuclearfarts.yetanotherloader.bootstrap.Bootstrap"
+}
+
+run {
+    dependsOn configurations.target
+    doFirst {
+    	System.out.println(project.configurations.target.resolvedConfiguration.files[0].path)
+		systemProperties.put("yal.generic.target", project.configurations.target.resolvedConfiguration.files[0].path)
+	}
+}
+
+task genEclipseRunCfg() {
+	dependsOn configurations.target
+	new File(projectDir, "yal-test.launch").text = """<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
+    <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+    	<listEntry value="/core/src/main/java/io/github/nuclearfarts/yetanotherloader/bootstrap/Bootstrap.java"/>
+    </listAttribute>
+    <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+    	<listEntry value="1"/>
+    </listAttribute>
+    <booleanAttribute key="org.eclipse.jdt.launching.ATTR_EXCLUDE_TEST_CODE" value="true"/>
+    <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="io.github.nuclearfarts.yetanotherloader.bootstrap.Bootstrap"/>
+    <stringAttribute key="org.eclipse.jdt.launching.MODULE_NAME" value="yetanotherloader"/>
+    <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="yetanotherloader"/>
+    <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dyal.generic.target=${project.configurations.target.resolvedConfiguration.files[0].path}"/>
+</launchConfiguration>"""
+}
