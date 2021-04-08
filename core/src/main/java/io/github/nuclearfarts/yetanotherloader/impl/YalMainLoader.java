@@ -79,7 +79,6 @@ public class YalMainLoader implements YalApi {
 		gameFsRoots.addAll(modFsRoots);
 		gameLoader = new TransformingNioClassLoader(gameFsRoots, pluginLoader);
 		for(YalPlugin p : plugins) {
-			System.out.println(p);
 			p.gameLoadedCallback(gameLoader);
 		}
 		gp.launch(gameLoader, args);

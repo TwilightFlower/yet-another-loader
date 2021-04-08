@@ -173,10 +173,8 @@ public class YalMixinService implements IMixinService, YalPlugin, IClassProvider
 		gameLoader = loader;
 		MixinBootstrap.init();
 		MixinEnvironment.init(Phase.DEFAULT);
-		System.out.println("Callback");
 		for(Mod m : YalApi.INSTANCE.getLoadedMods()) {
 			Object mixins = m.getConfigMap().get("mixins");
-			System.out.println(mixins);
 			if(mixins instanceof List) {
 				List<?> mixinList = (List<?>) mixins;
 				for(Object o : mixinList) {
