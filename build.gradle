@@ -12,10 +12,10 @@ configurations {
 dependencies {
 	implementation project(":core")
 	implementation project(":plugin-mixin")
-    implementation project(":generic-program-provider")
-    implementation project(":dev-mod-provider")
-    implementation project(":test-mod")
-    target project(":test-target")
+	implementation project(":generic-program-provider")
+	implementation project(":dev-mod-provider")
+	implementation project(":test-mod")
+	target project(":test-target")
 }
 
 allprojects {
@@ -32,6 +32,22 @@ allprojects {
 	task sourceJar(type: Jar) {
 		classifier 'sources'
 		from sourceSets.main.allJava
+	}
+	
+	if(!project.name.equals("test-mod") && !project.name.equals("test-target")) {
+		publishing {
+			publications {
+				maven(MavenPublication) {
+					groupId = "io.github.nuclearfarts.yal"
+					artifactId = project.name
+					artifact project.tasks.sourceJar
+					from project.components.java
+				}
+			}
+			repositories {
+				mavenLocal()
+			}
+		}
 	}
 }
 

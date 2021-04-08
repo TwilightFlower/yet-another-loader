@@ -1,3 +1,4 @@
 dependencies {
     implementation project(":core")
+    implementation "org.tomlj:tomlj:1.0.0"
 }
