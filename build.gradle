@@ -57,10 +57,8 @@ application {
 
 run {
     dependsOn configurations.target
-    doFirst {
-    	System.out.println(project.configurations.target.resolvedConfiguration.files[0].path)
-		systemProperties.put("yal.generic.target", project.configurations.target.resolvedConfiguration.files[0].path)
-	}
+    systemProperties.put("yal.bootstrap.reload", "true")
+	systemProperties.put("yal.generic.target", project.configurations.target.resolvedConfiguration.files[0].path)
 }
 
 task genEclipseRunCfg() {
