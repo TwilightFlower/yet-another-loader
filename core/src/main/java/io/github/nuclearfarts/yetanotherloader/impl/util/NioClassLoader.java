@@ -6,17 +6,23 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 public class NioClassLoader extends ClassLoader {
 	private final Collection<Path> roots;
+	private final ClassLoader altResourceSource;
 	
 	public NioClassLoader(Collection<Path> roots, ClassLoader parent) {
+		this(roots, parent, null);
+	}
+	
+	public NioClassLoader(Collection<Path> roots, ClassLoader parent, ClassLoader altResourceSource) {
 		super(parent);
 		this.roots = roots;
+		this.altResourceSource = altResourceSource;
 	}
 	
 	@Override
@@ -31,12 +37,15 @@ public class NioClassLoader extends ClassLoader {
 				}
 			}
 		}
+		if(altResourceSource != null) {
+			return altResourceSource.getResource(loc);
+		}
 		return null;
 	}
 	
 	@Override
-	public Enumeration<URL> findResources(String loc) {
-		List<URL> resources = new ArrayList<>();
+	public Enumeration<URL> findResources(String loc) throws IOException {
+		Set<URL> resources = new HashSet<>();
 		for(Path root : roots) {
 			Path res = root.resolve(loc);
 			if(Files.exists(res) && Files.isRegularFile(res)) {
@@ -45,6 +54,12 @@ public class NioClassLoader extends ClassLoader {
 				} catch (MalformedURLException e) {
 					throw new RuntimeException(e);
 				}
+			}
+		}
+		if(altResourceSource != null) {
+			Enumeration<URL> res = altResourceSource.getResources(loc);
+			while(res.hasMoreElements()) {
+				resources.add(res.nextElement());
 			}
 		}
 		return new IteratorEnumeration<>(resources.iterator());
@@ -56,6 +71,9 @@ public class NioClassLoader extends ClassLoader {
 			if(Files.exists(res) && Files.isRegularFile(res)) {
 				return Files.newInputStream(res);
 			}
+		}
+		if(altResourceSource != null) {
+			return altResourceSource.getResourceAsStream(loc);
 		}
 		return null;
 	}

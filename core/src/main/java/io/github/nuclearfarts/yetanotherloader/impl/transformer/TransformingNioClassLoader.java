@@ -17,23 +17,8 @@ public class TransformingNioClassLoader extends NioClassLoader {
 		super(roots, parent);
 	}
 	
-	@Override
-	protected Class<?> loadClass(String clazz, boolean resolve) throws ClassNotFoundException {
-		synchronized(getClassLoadingLock(clazz)) {
-			Class<?> find = findLoadedClass(clazz);
-			if(find != null) {
-				return find;
-			}
-			try {
-				find = findClass(clazz);
-			} catch(ClassNotFoundException e) {
-				return super.loadClass(clazz, resolve);
-			}
-			if(resolve) {
-				resolveClass(find);
-			}
-			return find;
-		}
+	public TransformingNioClassLoader(Collection<Path> roots, ClassLoader parent, ClassLoader altResourceSource) {
+		super(roots, parent, altResourceSource);
 	}
 	
 	@Override

@@ -20,7 +20,7 @@ public class DevModProvider implements ModProvider {
 	public Collection<? extends Mod> getMods() {
 		List<Mod> mods = new ArrayList<>();
 		try {
-			Enumeration<URL> classpathTomlsE = DevModProvider.class.getClassLoader().getResources("mod.toml");
+			Enumeration<URL> classpathTomlsE = ClassLoader.getSystemResources("mod.toml");
 			List<Path> classpathTomls = new ArrayList<>();
 			while(classpathTomlsE.hasMoreElements()) {
 				URL classpathToml = classpathTomlsE.nextElement();

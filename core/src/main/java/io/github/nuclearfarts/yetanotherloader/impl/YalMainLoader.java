@@ -19,6 +19,7 @@ import io.github.nuclearfarts.yetanotherloader.api.plugin.YalPlugin;
 import io.github.nuclearfarts.yetanotherloader.api.transformer.YalTransformer;
 import io.github.nuclearfarts.yetanotherloader.impl.transformer.MainTransformer;
 import io.github.nuclearfarts.yetanotherloader.impl.transformer.TransformingNioClassLoader;
+import io.github.nuclearfarts.yetanotherloader.impl.util.DoubleDelegateClassLoader;
 import io.github.nuclearfarts.yetanotherloader.impl.util.NioClassLoader;
 
 public class YalMainLoader implements YalApi {
@@ -31,10 +32,10 @@ public class YalMainLoader implements YalApi {
 	private List<Path> modFsRoots;
 	private final Map<String, Mod> mods = new HashMap<>();
 	
-	public static void loadProcess(Path pluginsDir, String[] args) throws IOException {
+	public static void loadProcess(Path pluginsDir, String[] args, ClassLoader originalLoader) throws IOException {
 		INSTANCE.beginLoad(pluginsDir);
-		INSTANCE.loadModTransformers();
-		INSTANCE.loadGame(args);
+		INSTANCE.loadModTransformers(originalLoader);
+		INSTANCE.loadGame(args, originalLoader);
 	}
 	
 	public void beginLoad(Path pluginsDir) throws IOException {
@@ -53,7 +54,7 @@ public class YalMainLoader implements YalApi {
 		}
 	}
 	
-	public void loadModTransformers() {
+	public void loadModTransformers(ClassLoader originalLoader) {
 		List<ModProvider> modProviders = ApiLoader.loadServiceProviders(ModProvider.class, pluginLoader);
 		modFsRoots = new ArrayList<>();
 		for(ModProvider p : modProviders) {
@@ -67,17 +68,17 @@ public class YalMainLoader implements YalApi {
 				}
 			}
 		}
-		transformerLoader = new NioClassLoader(modFsRoots, pluginLoader);
+		transformerLoader = new NioClassLoader(modFsRoots, new DoubleDelegateClassLoader(pluginLoader, originalLoader));
 		for(YalPlugin p : plugins) {
 			p.modTransformersLoadedCallback(transformerLoader);
 		}
 	}
 	
-	public void loadGame(String[] args) {
+	public void loadGame(String[] args, ClassLoader originalLoader) {
 		GameProvider gp = GameProvider.get();
 		Collection<Path> gameFsRoots = gp.getFsRoots();
 		gameFsRoots.addAll(modFsRoots);
-		gameLoader = new TransformingNioClassLoader(gameFsRoots, pluginLoader);
+		gameLoader = new TransformingNioClassLoader(gameFsRoots, pluginLoader, originalLoader);
 		for(YalPlugin p : plugins) {
 			p.gameLoadedCallback(gameLoader);
 		}
